@@ -1,0 +1,16 @@
+;******************************************************************************
+;                        'SQLR' Secure QR Login for Drupal
+;******************************************************************************
+
+; SQRL modules basic informaiton
+
+name = "Secure QR Login"
+description = "GRC 'Secure QR Login' aka 'SQRL' implementation for Drupal."
+package = "SQRL"
+core = 7.x
+
+; Requirements
+; dependencies[] = ""
+
+; Files
+; files[] = ""
