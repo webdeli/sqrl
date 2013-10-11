@@ -1,0 +1,15 @@
+;******************************************************************************
+;                Unit Tests: 'SQRL' Secure QR Login for Drupal
+;******************************************************************************
+
+name = "Secure QR Login 'SQRL' module tests"
+description = "Support module for Secure QR Login 'SQRL' testing."
+package = Testing
+core = 7.x
+hidden = TRUE
+
+; Requirements
+; dependencies[] = ""
+
+; Files
+; files[] = ""
