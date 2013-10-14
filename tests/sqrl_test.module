@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * @file
+ * Dummy module implementing a SQRL login.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function sqrl_test_menu() {
+  $items = array();
+  $items['sqrl_test/login'] = array(
+    'page callback' => 'sqrl_test_login',
+    'title' => 'SQRL Login',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['sqrl_test/validate'] = array(
+    'page callback' => 'sqrl_test_validate',
+    'title' => 'SQRL Validate',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['sqrl_test/serviceValidate'] = array(
+    'page callback' => 'sqrl_test_service_validate',
+    'title' => 'SQRL Service Validate',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['sqrl_test/proxyValidate'] = array(
+    'page callback' => 'sqrl_test_service_validate',
+    'title' => 'SQRL Proxy Ticket Validate',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['sqrl_test/logout'] = array(
+    'page callback' => 'sqrl_test_logout',
+    'title' => 'SQRL Logout',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['sqrl_test/token'] = array(
+    'page callback' => 'sqrl_test_token_evaluate',
+    'title' => 'SQRL Token Test',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
