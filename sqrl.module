@@ -1,5 +1,214 @@
 <?php
 
 /**
- * Drupal requires this file.
+ * @file
+ * Used to integrate SQRL into Drupal.
+ *
+ * @see https://www.grc.com/sqrl/sqrl.htm
  */
+
+/**
+ * TBD.
+ */
+define('SQRL_DEFAULT_SESSION_ALLOW_MULTIPLE', TRUE);
+/**
+ * TBD.
+ */
+define('SQRL_DEFAULT_USE_SECURE_CONNECTION', TRUE);
+/**
+ * TBD.
+ */
+define('SQRL_DEFAULT_SECURE_CONNECTION_PORT', 443);
+/**
+ * TBD.
+ */
+define('SQRL_DEFAULT_INSECURE_CONNECTION_PORT', 80);
+
+/**
+ * Provide and array with all supported operations.
+ *
+ * @return array
+ */
+function sqrl_supported_operations() {
+  return array(
+    'login',
+    'register',
+  );
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function sqrl_libraries_info() {
+  return array(
+    'phpqrcode' => array(
+      'name' => 'QRCode',
+      'vendor url' => 'http://sourceforge.net/p/phpqrcode/wiki/Home/',
+      'download' => 'http://sourceforge.net/projects/phpqrcode/files/latest/download?source=files',
+      'files' => array(
+        'php' => array(
+          'phpqrcode.php',
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function sqrl_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#sqrl':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The SQRL module ...') . '</p>';
+      return $output;
+    case 'admin/config/people/sqrl':
+      $output = '<p>' . t('Some help on the settings page.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function sqrl_theme() {
+  return array(
+    'sqrl_user_profile' => array(
+      'variables' => array('content' => NULL),
+      'file' => 'sqrl.theme.inc',
+    ),
+    'sqrl_register' => array(
+      'variables' => array('sqrl' => ''),
+      'file' => 'sqrl.theme.inc',
+    ),
+    'sqrl_login' => array(
+      'variables' => array('sqrl' => ''),
+      'file' => 'sqrl.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function sqrl_menu() {
+  $items['admin/config/people/sqrl'] = array(
+    'title' => 'Secure QR Login',
+    'description' => '',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sqrl_admin'),
+    'access arguments' => array('administer sqrl'),
+    'weight' => 10,
+    'file' => 'sqrl.admin.inc',
+  );
+  $items['sqrl/img/%'] = array(
+    'page callback' => 'sqrl_qr',
+    'page arguments' => array(2),
+    'access arguments' => TRUE,
+    'file' => 'sqrl.qr.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['sqrl/%'] = array(
+    'page callback' => 'sqrl_validation',
+    'page arguments' => array(1),
+    'access arguments' => TRUE,
+    'file' => 'sqrl.validation.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function sqrl_permission() {
+  return array(
+    'administer sqrl' => array(
+      'title' => t('Administer SQRL'),
+    ),
+  );
+}
+
+/**
+ * TBD.
+ *
+ * @return bool
+ */
+function sqrl_is_secure_connection_available() {
+  return variable_get('https', FALSE);
+}
+
+/**
+ * TBD.
+ *
+ * @return bool
+ */
+function sqrl_use_secure_connection() {
+  return sqrl_is_secure_connection_available() ?
+    variable_get('sqrl_use_secure_connection', SQRL_DEFAULT_USE_SECURE_CONNECTION) : FALSE;
+}
+
+/**
+ * @return string
+ */
+function sqrl_get_base_url() {
+  global $base_url;
+  return variable_get('sqrl_base_url', $base_url);
+}
+
+/**
+ * TBD.
+ *
+ * @param $op
+ * @return string
+ */
+function sqrl_get_url($op) {
+  $scheme = sqrl_is_secure_connection_available() ? 'sqrl' : 'qrl';
+  return $scheme . '://' . sqrl_get_base_url() . '/sqrl/' . $op . '?' . drupal_http_build_query(array(
+    'nuk' => sqrl_get_nuk(),
+  ));
+}
+
+function sqrl_get_nuk() {
+  return drupal_get_token('sqrl');
+}
+
+/**
+ * TBD.
+ *
+ * @return int
+ */
+function sqrl_get_connection_port() {
+  return sqrl_use_secure_connection() ?
+    variable_get('sqrl_secure_connection_port', SQRL_DEFAULT_SECURE_CONNECTION_PORT) :
+    variable_get('sqrl_insecure_connection_port', SQRL_DEFAULT_INSECURE_CONNECTION_PORT);
+}
+
+function sqrl_login_markup() {
+  return sqrl_markup('login');
+}
+
+function sqrl_markup($op) {
+  $image = theme('image', array(
+    'path' => url('sqrl/img/' . $op, array('nuk' => sqrl_get_nuk())),
+    'width' => 80,
+    'height' => 80,
+    'alt' => 'SQRL',
+    'title' => 'SQRL',
+  ));
+  return '<a href="' . sqrl_get_url($op) . '">' . $image . '</a>';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function sqrl_form_user_login_alter(&$form, &$form_state, $form_id) {
+  $form['sqrl'] = array(
+    '#markup' => theme('sqrl_login', array('sqrl' => sqrl_login_markup())),
+  );
+
+  // TODO: Add some magic to the submit button so that the form gets auto-submitted when authentication was successful.
+}
