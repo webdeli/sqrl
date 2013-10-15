@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * Provides install, update and uninstall functions for the SQRL module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function sqrl_install() {
+  // @TODO add install functions here.
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function sqrl_uninstall() {
+  // @TODO add uninstall functions here.
+}
+
+/**
+ * Implements hook_schema().
+ */
+function sqrl_schema() {
+  $schema['sqrl_users'] = array(
+    // @TODO add schema array here.
+  );  return $schema;
+}
+
+/**
+ * Implements hook_schema_alter()
+ */
+function sqrl_schema_alter(&$schema) {
+  // @TODO add post schema modifyer functions here.
+}
